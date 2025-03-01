@@ -44,7 +44,7 @@ jobs:
           $TAG = git describe --tags --abbrev=0
           echo "Current tag: $TAG"
           echo "tag=$TAG" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo ${{ env.tag }}
+          echo "${{ env.tag }}"
       
       # - name: Download Artifact
       #   uses: actions/download-artifact@v4
