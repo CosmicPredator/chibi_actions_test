@@ -92,6 +92,7 @@ jobs:
           path: build
   
   create_release:
+    name: Publish new Release
     needs: build_win_installer
     permissions: write-all
     runs-on: ubuntu-latest
