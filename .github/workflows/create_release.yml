@@ -66,7 +66,7 @@ jobs:
       
       - name: Rename Binary
         shell: cmd
-        run: ren build\chibi_${{ env.tag }}_win_amd64.exe chibi.exe
+        run: ren build\chibi_${{ env.V_TAG }}_win_amd64.exe chibi.exe
       
       - name: Pack Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
