@@ -2,7 +2,8 @@ name: Release (Multiple Arch)
 
 on:
   push:
-    branches: [ develop ]
+    tags:
+      - "*"
   workflow_dispatch:
 
 jobs:
@@ -80,58 +81,62 @@ jobs:
         shell: cmd
         run: move installer_scripts\Output\chibi_${{ env.V_TAG }}_installer.exe build\
       
+      - name: Rename Binary (Again)
+        shell: cmd
+        run: ren build\chibi.exe chibi_${{ env.V_TAG }}_win_amd64.exe
+      
       - name: Upload Installer Artifacts
         uses: actions/upload-artifact@v4
         with: 
           name: build_artifacts_with_installer
           path: build
   
-  # create_release:
-  #   needs: build_win_installer
-  #   permissions: write-all
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+  create_release:
+    needs: build_win_installer
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-  #     - name: Read Version
-  #       id: read_version
-  #       run: |
-  #         TAG=$(git describe --tags --abbrev=0)
-  #         echo "Current tag: $TAG"
-  #         echo "tag=$TAG" >> $GITHUB_ENV
+      - name: Read Version
+        id: read_version
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          echo "Current tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_ENV
       
-  #     - name: Download Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: build_artifacts_with_installer
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         path: build/
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build_artifacts_with_installer
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/
       
-  #     - name: Tree Dir
-  #       run: tree
+      - name: Tree Dir
+        run: tree
 
-  #     # TODO: Uncomment this at the end
-  #     - name: Create Release
-  #       id: create-release
-  #       uses: comnoco/create-release-action@v2.0.5
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ env.tag }}
-  #         release_name: Version ${{ env.tag }} 🔖
-  #         body_path: ./CHANGELOG.md
-  #         draft: false
-  #         prerelease: false
+      # TODO: Uncomment this at the end
+      - name: Create Release
+        id: create-release
+        uses: comnoco/create-release-action@v2.0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag }}
+          release_name: Version ${{ env.tag }} 🔖
+          body_path: ./CHANGELOG.md
+          draft: false
+          prerelease: false
         
-  #     - name: Upload Artifacts to Release
-  #       uses: AButler/upload-release-assets@v3.0
-  #       with:
-  #         repo-token: ${{ secrets.GITHUB_TOKEN }}
-  #         release-tag: ${{ env.tag }}
-  #         files: "build/*"
+      - name: Upload Artifacts to Release
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ env.tag }}
+          files: "build/*"
 
   # publish_to_winget:
   #   needs: create_release
