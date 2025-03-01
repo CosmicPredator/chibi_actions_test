@@ -44,102 +44,110 @@ jobs:
           $TAG = git describe --tags --abbrev=0
           echo "Current tag: $TAG"
           echo "tag=$TAG" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host ${{ env.tag }}
       
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build_artifacts
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: build/
+      # - name: Download Artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: build_artifacts
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: build/
       
-      - name: Rename Binary
-        shell: cmd
-        run: ren build\chibi_${{ env.tag }}_windows.exe chibi.exe
+      # - name: Rename Binary
+      #   shell: cmd
+      #   run: ren build\chibi_${{ env.tag }}_windows.exe chibi.exe
       
-      - name: Pack Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
-        with:
-          path: installer_scripts\chibi_setup.iss
-          options: /O+
+      # - name: Pack Installer
+      #   uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
+      #   with:
+      #     path: installer_scripts\chibi_setup.iss
+      #     options: /O+
       
-      - name: Move installer to build dir
-        shell: cmd
-        run: move installer_scripts\Output\chibi_installer.exe build\
+      # - name: Move installer to build dir
+      #   shell: cmd
+      #   run: move installer_scripts\Output\chibi_installer.exe build\
       
-      - name: Upload Installer Artifacts
-        uses: actions/upload-artifact@v4
-        with: 
-          name: build_artifacts_with_installer
-          path: build
+      # - name: Upload Installer Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with: 
+      #     name: build_artifacts_with_installer
+      #     path: build
   
-  create_release:
-    needs: build_win_installer
-    permissions: write-all
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # create_release:
+  #   needs: build_win_installer
+  #   permissions: write-all
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
       
-      - name: Read Version
-        id: read_version
-        run: |
-          TAG=$(git describe --tags --abbrev=0)
-          echo "Current tag: $TAG"
-          echo "tag=$TAG" >> $GITHUB_ENV
+  #     - name: Read Version
+  #       id: read_version
+  #       run: |
+  #         TAG=$(git describe --tags --abbrev=0)
+  #         echo "Current tag: $TAG"
+  #         echo "tag=$TAG" >> $GITHUB_ENV
       
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build_artifacts_with_installer
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: build/
+  #     - name: Download Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build_artifacts_with_installer
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         path: build/
       
-      - name: Tree Dir
-        run: tree
+  #     - name: Tree Dir
+  #       run: tree
 
-      # TODO: Uncomment this at the end
-      - name: Create Release
-        id: create-release
-        uses: comnoco/create-release-action@v2.0.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.tag }}
-          release_name: Version ${{ env.tag }} 🔖
-          body_path: ./CHANGELOG.md
-          draft: false
-          prerelease: false
+  #     # TODO: Uncomment this at the end
+  #     - name: Create Release
+  #       id: create-release
+  #       uses: comnoco/create-release-action@v2.0.5
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ env.tag }}
+  #         release_name: Version ${{ env.tag }} 🔖
+  #         body_path: ./CHANGELOG.md
+  #         draft: false
+  #         prerelease: false
         
-      - name: Upload Artifacts to Release
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ env.tag }}
-          files: "build/*"
+  #     - name: Upload Artifacts to Release
+  #       uses: AButler/upload-release-assets@v3.0
+  #       with:
+  #         repo-token: ${{ secrets.GITHUB_TOKEN }}
+  #         release-tag: ${{ env.tag }}
+  #         files: "build/*"
 
-  publish_to_winget:
-    needs: create_release
-    permissions: write-all
-    runs-on: windows-latest
-    name: Publish installer to WinGet
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # publish_to_winget:
+  #   needs: create_release
+  #   permissions: write-all
+  #   runs-on: windows-latest
+  #   name: Publish installer to WinGet
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Read Version
-        id: read_version
-        run: |
-          TAG=$(git describe --tags --abbrev=0)
-          echo "Current tag: $TAG"
-          echo "tag=$TAG" >> $GITHUB_ENV
+  #     - name: Read Version
+  #       id: read_version
+  #       run: |
+  #         TAG=$(git describe --tags --abbrev=0)
+  #         echo "Current tag: $TAG"
+  #         echo "tag=$TAG" >> $GITHUB_ENV
       
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build_artifacts_with_installer
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: build/
+  #     - name: Print Version
+  #       id: print_version
+  #       shell: pwsh
+  #       run: |
+  #         Write-Host ${{ env.tag }}
+          
+      
+  #     - name: Download Artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build_artifacts_with_installer
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         path: build/
