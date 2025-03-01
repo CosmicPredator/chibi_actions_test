@@ -7,6 +7,7 @@ on:
 
 jobs:
   build_release:
+    name: Run Make Build
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +29,7 @@ jobs:
           path: build
   
   build_win_installer:
-    #needs: build_release
+    needs: build_release
     runs-on: windows-latest
     name: Build Windows Installer (INNO)
     permissions: write-all
