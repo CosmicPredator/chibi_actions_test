@@ -6,29 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_release:
-    permissions: write-all
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # build_release:
+  #   permissions: write-all
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Run Make
-        run: make BUILD_TYPE=RELEASE
+  #     - name: Run Make
+  #       run: make BUILD_TYPE=RELEASE
       
-      - name: Tree Dir
-        run: tree
+  #     - name: Tree Dir
+  #       run: tree
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with: 
-          name: build_artifacts
-          path: build
+  #     - name: Upload Artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with: 
+  #         name: build_artifacts
+  #         path: build
   
   build_win_installer:
-    needs: build_release
+    #needs: build_release
     runs-on: windows-latest
     permissions: write-all
     steps:
@@ -44,7 +44,7 @@ jobs:
           $TAG = git describe --tags --abbrev=0
           echo "Current tag: $TAG"
           echo "tag=$TAG" | Out-File -FilePath $env:GITHUB_ENV -Append
-          Write-Host ${{ env.tag }}
+          echo ${{ env.tag }}
       
       # - name: Download Artifact
       #   uses: actions/download-artifact@v4
