@@ -1,0 +1,25 @@
+name: Build (Multiple Arch)
+
+on:
+  pull_request: 
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Make
+        run: make BUILD_TYPE=DEBUG
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: build_artifacts
+          path: build/*
