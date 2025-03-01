@@ -6,30 +6,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  # build_release:
-  #   permissions: write-all
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+  build_release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: Run Make
-  #       run: make BUILD_TYPE=RELEASE
+      - name: Run Make
+        run: make BUILD_TYPE=RELEASE
       
-  #     - name: Tree Dir
-  #       run: tree
+      - name: Tree Dir
+        run: tree
 
-  #     - name: Upload Artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with: 
-  #         name: build_artifacts
-  #         path: build
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: build_artifacts
+          path: build
   
   build_win_installer:
     #needs: build_release
     runs-on: windows-latest
+    name: Build Windows Installer (INNO)
     permissions: write-all
     steps:
       - name: Checkout
@@ -45,38 +46,34 @@ jobs:
           echo "Current tag: $TAG"
           echo "V_TAG=$TAG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       
-      - name: Use Environment Variable
-        shell: pwsh
-        run: | 
-          echo "Value of MY_VAR: ${{ env.V_TAG }}"
-          
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build_artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/
       
-      # - name: Download Artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: build_artifacts
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     path: build/
+      - name: Rename Binary
+        shell: cmd
+        run: ren build\chibi_${{ env.tag }}_win_amd64.exe chibi.exe
       
-      # - name: Rename Binary
-      #   shell: cmd
-      #   run: ren build\chibi_${{ env.tag }}_windows.exe chibi.exe
+      - name: Pack Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
+        env:
+          V_TAG: ${{ env.V_TAG }}
+        with:
+          path: installer_scripts\chibi_setup.iss
+          options: /O+
       
-      # - name: Pack Installer
-      #   uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
-      #   with:
-      #     path: installer_scripts\chibi_setup.iss
-      #     options: /O+
+      - name: Move installer to build dir
+        shell: cmd
+        run: move installer_scripts\Output\chibi_${{ env.V_TAG }}_installer.exe build\
       
-      # - name: Move installer to build dir
-      #   shell: cmd
-      #   run: move installer_scripts\Output\chibi_installer.exe build\
-      
-      # - name: Upload Installer Artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with: 
-      #     name: build_artifacts_with_installer
-      #     path: build
+      - name: Upload Installer Artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: build_artifacts_with_installer
+          path: build
   
   # create_release:
   #   needs: build_win_installer
