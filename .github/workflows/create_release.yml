@@ -149,25 +149,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Read Version
-        id: read_version
-        shell: pwsh
-        run: |
-          $TAG = git describe --tags --abbrev=0
-          echo "Current tag: $TAG"
-          echo "V_TAG=$TAG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build_artifacts_with_installer
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path: build/
       
       - name: Publish to WinGet
         uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: CosmicPredator.Chibi
-          installers-regex: 'build[/\\].*_installer\.exe$'
+          installers-regex: '.*_installer\.exe$'
           token: ${{ secrets.WINGET_TOKEN }} 
