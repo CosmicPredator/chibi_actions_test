@@ -139,34 +139,35 @@ jobs:
           release-tag: ${{ env.tag }}
           files: "build/*"
 
-  # publish_to_winget:
-  #   needs: create_release
-  #   permissions: write-all
-  #   runs-on: windows-latest
-  #   name: Publish installer to WinGet
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+  publish_to_winget:
+    needs: create_release
+    permissions: write-all
+    runs-on: windows-latest
+    name: Publish installer to WinGet
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: Read Version
-  #       id: read_version
-  #       run: |
-  #         TAG=$(git describe --tags --abbrev=0)
-  #         echo "Current tag: $TAG"
-  #         echo "tag=$TAG" >> $GITHUB_ENV
-      
-  #     - name: Print Version
-  #       id: print_version
-  #       shell: pwsh
-  #       run: |
-  #         Write-Host ${{ env.tag }}
+      - name: Read Version
+        id: read_version
+        shell: pwsh
+        run: |
+          $TAG = git describe --tags --abbrev=0
+          echo "Current tag: $TAG"
+          echo "V_TAG=$TAG" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build_artifacts_with_installer
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/
       
-  #     - name: Download Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: build_artifacts_with_installer
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         path: build/
+      - name: Publish to WinGet
+        uses: vedantmgoyal9/winget-releaser@main
+        with:
+          identifier: CosmicPredator.Chibi
+          installers-regex: 'build[/\\].*_installer\.exe$'
+          token: ${{ secrets.WINGET_TOKEN }} 
