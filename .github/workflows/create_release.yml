@@ -191,13 +191,17 @@ jobs:
         run: |
           mv installer_scripts/snapcraft.yaml snapcraft.yaml
       
-      - name: Build Snap
-        uses: snapcore/action-build@v1
+      - name: Install Snapcraft with LXD
+        uses: samuelmeuli/action-snapcraft@v3
+      
+      - name: Build snap
+        run: sg lxd -c 'snapcraft --use-lxd'
 
       - name: Upload snap to Snap Store
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
         run: |
           sudo snap install snapcraft --classic
-          echo "${{ secrets.SNAPCRAFT_TOKEN }}" | snapcraft login --with -
           snapcraft upload *.snap --release=candidate
           
 
