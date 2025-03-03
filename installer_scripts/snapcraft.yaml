@@ -1,6 +1,5 @@
 name: chibi
 base: core24
-version: git
 summary: A lightweight anime & manga tracker CLI app powered by AniList
 description: |
   Chibi for AniList - A lightweight anime & manga tracker CLI app powered by AniList.
@@ -20,7 +19,7 @@ parts:
   my-part:
     plugin: dump
     source: .
-    source-type: git
+    source-type: local
     organize:
       "build/chibi": "usr/local/bin/chibi"
 

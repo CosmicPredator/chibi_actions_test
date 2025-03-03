@@ -190,6 +190,7 @@ jobs:
       - name: Move snapcraft.yaml file to root
         run: |
           mv installer_scripts/snapcraft.yaml snapcraft.yaml
+          echo "version: ${{ env.tag }}" >> snapcraft.yaml 
 
       - name: Install Snapcraft
         run: |
