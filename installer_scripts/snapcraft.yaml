@@ -21,7 +21,6 @@ parts:
     plugin: dump
     source: .
     source-type: git
-    git-depth: 1
     organize:
       "build/chibi": "usr/local/bin/chibi"
 
