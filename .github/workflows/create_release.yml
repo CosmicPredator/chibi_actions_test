@@ -184,6 +184,7 @@ jobs:
       - name: Rename Linux Binary
         run: |
           mv build/chibi_${{ env.tag }}_linux_amd64 build/chibi
+          sudo chmod 777 build/chibi
           echo "Rename binary successful"
       
       - name: Move snapcraft.yaml file to root
