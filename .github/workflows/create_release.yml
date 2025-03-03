@@ -203,7 +203,7 @@ jobs:
       - name: Build snap
         run: |
           sudo usermod -a -G lxd $USER
-          snapcraft
+          sudo snapcraft
 
       - name: Upload snap to Snap Store
         env:
