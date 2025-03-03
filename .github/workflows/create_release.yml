@@ -201,7 +201,9 @@ jobs:
           group: lxd
       
       - name: Build snap
-        run: snapcraft
+        run: |
+          sudo usermod -a -G lxd $USER
+          snapcraft
 
       - name: Upload snap to Snap Store
         env:
