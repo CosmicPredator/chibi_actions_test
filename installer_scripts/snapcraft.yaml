@@ -20,7 +20,8 @@ parts:
   my-part:
     plugin: dump
     source: .
-    source-type: local
+    source-type: git
+    git-depth: 1
     organize:
       "build/chibi": "usr/local/bin/chibi"
 
