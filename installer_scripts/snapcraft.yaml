@@ -14,7 +14,7 @@ description: |
 adopt-info: my-part
 
 grade: stable
-confinement: devmode
+confinement: strict
 
 parts:
   my-part:
