@@ -191,22 +191,14 @@ jobs:
         run: |
           mv installer_scripts/snapcraft.yaml snapcraft.yaml
       
-      - name: Set up Snapcraft
-        uses: snapcore/action-build@v1
-      
       - name: Build Snap
-        run: snapcraft
+        uses: snapcore/action-build@v1
 
-      - name: Install Snapcraft
+      - name: Upload snap to Snap Store
         run: |
           sudo snap install snapcraft --classic
-
-      - name: Login to Snapcraft
-        run: |
           echo "${{ secrets.SNAPCRAFT_TOKEN }}" | snapcraft login --with -
-      
-      - name: Upload to Snap Store
-        run: |
           snapcraft upload *.snap --release=candidate
+          
 
       
