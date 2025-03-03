@@ -139,20 +139,73 @@ jobs:
           release-tag: ${{ env.tag }}
           files: "build/*"
 
-  publish_to_winget:
+  # publish_to_winget:
+  #   needs: create_release
+  #   permissions: write-all
+  #   runs-on: windows-latest
+  #   name: Publish installer to WinGet
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+      
+  #     - name: Publish to WinGet
+  #       uses: vedantmgoyal9/winget-releaser@main
+  #       with:
+  #         identifier: CosmicPredator.Chibi
+  #         installers-regex: '.*_installer\.exe$'
+  #         token: ${{ secrets.WINGET_TOKEN }} 
+
+  publish_to_snap_store:
     needs: create_release
-    permissions: write-all
-    runs-on: windows-latest
-    name: Publish installer to WinGet
+    runs-on: ubuntu-latest
+    name: Publish to Snap Store
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
-      - name: Publish to WinGet
-        uses: vedantmgoyal9/winget-releaser@main
+      - name: Read Tag
+        id: read_version
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          echo "Current tag: $TAG"
+          echo "tag=$TAG" >> $GITHUB_ENV
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
         with:
-          identifier: CosmicPredator.Chibi
-          installers-regex: '.*_installer\.exe$'
-          token: ${{ secrets.WINGET_TOKEN }} 
+          name: build_artifacts_with_installer
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build/
+      
+      - name: Rename Linux Binary
+        run: |
+          mv build/chibi_${{ env.tag }}_linux_amd64 build/chibi
+          echo "Rename binary successful"
+      
+      - name: Move snapcraft.yaml file to root
+        run: |
+          mv installer_scripts/snapcraft.yaml snapcraft.yaml
+      
+      - name: Set up Snapcraft
+        uses: snapcore/action-build@v1
+      
+      - name: Build Snap
+        run: snapcraft
+
+      - name: Install Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+
+      - name: Login to Snapcraft
+        run: |
+          echo "${{ secrets.SNAPCRAFT_TOKEN }}" | snapcraft login --with -
+      
+      - name: Upload to Snap Store
+        run: |
+          snapcraft upload *.snap --release=candidate
+
+      

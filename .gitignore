@@ -1,0 +1,7 @@
+build/
+.vscode/
+casette.tape
+docs/node_modules
+docs/.vitepress/cache
+docs/.vitepress/dist
+chibi
