@@ -195,7 +195,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v3
       
       - name: Build snap
-        run: sg lxd -c 'snapcraft --use-lxd'
+        run: sudo sg lxd -c 'snapcraft --use-lxd'
 
       - name: Upload snap to Snap Store
         env:
